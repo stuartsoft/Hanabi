@@ -3,6 +3,7 @@
 #include "Events.h"
 #include <vector>
 #include <iostream>
+#include "CardKnowledgeBase.h"
 
 using std::vector;
 using std::cout;
@@ -19,6 +20,14 @@ public:
 	void tell(Event* e, vector<int> board, int hints, int fuses, vector<Card> oHand, int deckSize);
 	Event* ask();
 private:
+	int fuses;
+	int hints;
+	int deckSize;
+	vector<Card> Discard;
+	vector<Card> oHand;
+	vector<int> board;
+	vector<CardKnowledgeBase> myHandKB;
+	vector<CardKnowledgeBase> theirHandKB;
 };
 
 Player::Player()
@@ -31,6 +40,30 @@ Player::Player(const Player& p)
 
 void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card> oHand, int deckSize)
 {
+	//store info provided by tell()
+	this->hints = hints;
+	this->fuses = fuses;
+	this->deckSize = deckSize;
+	this->oHand = oHand;//deep copy
+	this->board = board;
+
+	CardKnowledgeBase CKB;
+
+	switch (e->getAction())
+	{
+	case DRAW://other person drew a card
+		theirHandKB.push_back(CKB);
+		break;
+	case COLOR_HINT:
+		break;
+	case NUMBER_HINT:
+		break;
+	case PLAY:
+		break;
+	case DISCARD:
+		break;
+	}
+
 	/* Possible kinds of event:
 		DiscardEvent - can be for us or other player
 			c - the card discarded
@@ -48,6 +81,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			legal - whether the card was a legal play
 			wasItThisPlayer - true if we discarded, false otherwise
 	*/
+	
 }
 
 Event* Player::ask()
