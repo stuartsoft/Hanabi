@@ -1,24 +1,11 @@
-﻿Build started 10/25/2015 1:42:27 PM.
+﻿Build started 10/25/2015 1:49:03 PM.
      1>Project "C:\Users\bowmanrs1\Desktop\Partial Hanabi\Hanabi\Hanabi.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Hanabi.cpp
          Hanabi.cpp
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5): error C2011: 'CardKnowledgeBase' : 'class' type redefinition
-                 c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5) : see declaration of 'CardKnowledgeBase'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(16): error C2027: use of undefined type 'CardKnowledgeBase'
-                 c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5) : see declaration of 'CardKnowledgeBase'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(16): error C2059: syntax error : ')'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(16): error C2143: syntax error : missing ';' before '{'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(16): error C2447: '{' : missing function header (old-style formal list?)
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(23): error C2027: use of undefined type 'CardKnowledgeBase'
-                 c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5) : see declaration of 'CardKnowledgeBase'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(23): error C2226: syntax error : unexpected type 'CardKnowledgeBase'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(23): error C2143: syntax error : missing ';' before '{'
-     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(23): error C2447: '{' : missing function header (old-style formal list?)
-                 c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5) : see declaration of 'CardKnowledgeBase'
-                 c:\users\bowmanrs1\desktop\partial hanabi\hanabi\cardknowledgebase.h(5) : see declaration of 'CardKnowledgeBase'
+     1>c:\users\bowmanrs1\desktop\partial hanabi\hanabi\player.h(92): error C4716: 'Player::ask' : must return a value
      1>Done Building Project "C:\Users\bowmanrs1\Desktop\Partial Hanabi\Hanabi\Hanabi.vcxproj" (Build target(s)) -- FAILED.
 
 Build FAILED.
 
-Time Elapsed 00:00:00.62
+Time Elapsed 00:00:00.81

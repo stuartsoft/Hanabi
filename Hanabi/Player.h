@@ -23,7 +23,7 @@ private:
 	int fuses;
 	int hints;
 	int deckSize;
-	vector<Card> Discard;
+	vector<Card> discardPile;
 	vector<Card> oHand;
 	vector<int> board;
 	vector<CardKnowledgeBase> myHandKB;
@@ -44,24 +44,43 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	this->hints = hints;
 	this->fuses = fuses;
 	this->deckSize = deckSize;
-	this->oHand = oHand;//deep copy
+	this->oHand = oHand;
 	this->board = board;
 
-	CardKnowledgeBase CKB;
-
-	switch (e->getAction())
-	{
-	case DRAW://other person drew a card
+	int actionType = e->getAction();
+	
+	if (actionType == DRAW){
+		CardKnowledgeBase CKB;
 		theirHandKB.push_back(CKB);
-		break;
-	case COLOR_HINT:
-		break;
-	case NUMBER_HINT:
-		break;
-	case PLAY:
-		break;
-	case DISCARD:
-		break;
+	}
+	else if (actionType == DISCARD){
+		DiscardEvent * de = static_cast<DiscardEvent*>(e);
+		discardPile.push_back(de->c);//records card in our discard pile
+		int pos = de->position;
+		if(de->wasItThisPlayer){//we discarded a card
+			myHandKB.erase(myHandKB.begin() + pos);
+		}
+		else{//the other player discarded
+			theirHandKB.erase(theirHandKB.begin() + pos);
+		}
+	}
+	else if (actionType == PLAY){
+		PlayEvent * pe = static_cast<PlayEvent *>(e);
+		int pos = pe->position;
+		if (pe->wasItThisPlayer){//we played
+			myHandKB.erase(myHandKB.begin() + pos);
+		}
+		else{//other player played
+			theirHandKB.erase(theirHandKB.begin() + pos);
+		}
+
+		if (!pe->legal){//play was not legal, card goes to discard pile
+			discardPile.push_back(pe->c);
+		}
+	}
+	else if (actionType == COLOR_HINT){
+		ColorHintEvent * che = static_cast<ColorHintEvent *>(e);
+		
 	}
 
 	/* Possible kinds of event:
