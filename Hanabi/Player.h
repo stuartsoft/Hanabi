@@ -82,7 +82,40 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		ColorHintEvent * che = static_cast<ColorHintEvent *>(e);
 		int color = che->color;
 		for (int i = 0;i<myHandKB.size;i++){//update each kb in our hand
-			
+			bool cardMatch = false;//card i was hinted
+			for (int j = 0;j<che->indices.size;j++){
+				if (i==j){
+					cardMatch = true;
+					break;
+				}
+			}
+
+			if (cardMatch){//we were given a hint for this card
+				myHandKB[i].setColor(color);//remove all possible colors except this color
+			}
+			else{
+				myHandKB[i].removePossibleColor(color);//this card cannot be this color because it was not given a hint
+			}
+		}
+	}
+	else if (actionType == NUMBER_HINT){
+		NumberHintEvent * nhe = static_cast<NumberHintEvent *>(e);
+		int number = nhe->number;
+		for (int i = 0;i<myHandKB.size;i++){
+			bool cardMatch = false;
+			for (int j = 0;j<nhe->indices.size;j++){
+				if (i==j){
+					cardMatch = true;
+					break;
+				}
+			}
+
+			if (cardMatch){
+				myHandKB[i].setNumber(number);
+			}
+			else{
+				myHandKB[i].removePossibleColor(number);
+			}
 		}
 	}
 
