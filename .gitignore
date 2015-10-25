@@ -1,3 +1,5 @@
 *.sdf
 *.opensdf
 *.v11.suo
+/[Dd]ebug/
+/[Hh]anabi/[Dd]ebug/
