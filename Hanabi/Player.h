@@ -32,6 +32,10 @@ private:
 
 Player::Player()
 {
+	for (int i = 0;i<HAND_SIZE;i++){//initialize my knowledgebase for a default hand
+		CardKnowledgeBase CKB;
+		myHandKB.push_back(CKB);
+	}
 }
 
 Player::Player(const Player& p)
@@ -59,6 +63,10 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		int pos = de->position;
 		if(de->wasItThisPlayer){//we discarded a card
 			myHandKB.erase(myHandKB.begin() + pos);
+			if (deckSize > 0){
+				CardKnowledgeBase CKB;
+				myHandKB.push_back(CKB);
+			}
 		}
 		else{//the other player discarded
 			theirHandKB.erase(theirHandKB.begin() + pos);
@@ -69,6 +77,10 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		int pos = pe->position;
 		if (pe->wasItThisPlayer){//we played
 			myHandKB.erase(myHandKB.begin() + pos);
+			if (deckSize > 0){
+				CardKnowledgeBase CKB;
+				myHandKB.push_back(CKB);
+			}
 		}
 		else{//other player played
 			theirHandKB.erase(theirHandKB.begin() + pos);
@@ -141,14 +153,17 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 Event* Player::ask()//actual AI
 {
+	system("pause");
+	vector<Card> neededCards;
+	for (int i = 0;i<board.size();i++){
+		if (board[i]<NUM_NUMBERS){
+			Card neededCard(i,board[i]+1);
+			neededCards.push_back(neededCard);
+		}		
+	}
+
 	if (hints > 0){//we have hints available. Only hint cards that are currently playable
-		vector<Card> neededCards;
-		for (int i = 0;i<board.size();i++){
-			if (board[i]<NUM_NUMBERS){
-				Card neededCard(i,board[i]+1);
-				neededCards.push_back(neededCard);
-			}		
-		}
+
 		//we now have a list of the cards we could play
 		vector<int> oHandPlayableCards;//indicies of playable cards in the opponent's hand
 		for (int i = 0;i<oHand.size();i++){
@@ -219,6 +234,19 @@ Event* Player::ask()//actual AI
 	}
 
 	//no hints were given
+
+	//play actions
+	for (int i = 0;i<myHandKB.size();i++){
+		if (myHandKB[i].knowsColor() && myHandKB[i].knowsNumber()){
+			for (int j = 0;j<neededCards.size();j++){
+				if (myHandKB[i].possibleColors[0] == neededCards[j].color && myHandKB[i].possibleNumbers[0] == neededCards[j].number){
+					PlayEvent * PE = new PlayEvent();
+					PE->position = i;
+					return PE;//play this card if we know color and num and it is playable
+				}
+			}
+		}
+	}
 
 	//attempt to discard an unuseful card
 	vector<int> cardKnowledgeScore;
