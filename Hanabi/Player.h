@@ -216,8 +216,28 @@ Event* Player::ask()//actual AI
 			NHE->number = oHand[oHandPlayableCards[minNumIndex]].number;
 			return NHE;
 		}
-
 	}
+
+	//no hints were given
+
+	//attempt to discard an unuseful card
+	vector<int> cardKnowledgeScore;
+	for (int i = 0;i< myHandKB.size();i++){
+		int score = 0;
+		score = myHandKB[i].possibleColors.size() * myHandKB[i].possibleColors.size();
+		cardKnowledgeScore.push_back(score);
+	}
+
+	int CKS_HighScore = 0;//index of highest score
+	for (int i = 1;i<cardKnowledgeScore.size();i++){
+		if (cardKnowledgeScore[i] > cardKnowledgeScore[CKS_HighScore])
+			CKS_HighScore = i;
+	}
+
+	//CKS_HighScore is the index of the card in our hand with the worst knowledge score, discard it
+	DiscardEvent * DE = new DiscardEvent();
+	DE->position = CKS_HighScore;
+	return DE;//discard the card we know the least about
 
 	/* You must produce an event of the appropriate type. Not all member
 		variables of a given event type need to be filled in; some will be
