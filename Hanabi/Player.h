@@ -81,9 +81,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	else if (actionType == COLOR_HINT){
 		ColorHintEvent * che = static_cast<ColorHintEvent *>(e);
 		int color = che->color;
-		for (int i = 0;i<myHandKB.size;i++){//update each kb in our hand
+		for (int i = 0;i<myHandKB.size();i++){//update each kb in our hand
 			bool cardMatch = false;//card i was hinted
-			for (int j = 0;j<che->indices.size;j++){
+			for (int j = 0;j<che->indices.size();j++){
 				if (i==j){
 					cardMatch = true;
 					break;
@@ -101,9 +101,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	else if (actionType == NUMBER_HINT){
 		NumberHintEvent * nhe = static_cast<NumberHintEvent *>(e);
 		int number = nhe->number;
-		for (int i = 0;i<myHandKB.size;i++){
+		for (int i = 0;i<myHandKB.size();i++){
 			bool cardMatch = false;
-			for (int j = 0;j<nhe->indices.size;j++){
+			for (int j = 0;j<nhe->indices.size();j++){
 				if (i==j){
 					cardMatch = true;
 					break;
@@ -139,8 +139,86 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	
 }
 
-Event* Player::ask()
+Event* Player::ask()//actual AI
 {
+	if (hints > 0){//we have hints available. Only hint cards that are currently playable
+		vector<Card> neededCards;
+		for (int i = 0;i<board.size();i++){
+			if (board[i]<NUM_NUMBERS){
+				Card neededCard(i,board[i]+1);
+				neededCards.push_back(neededCard);
+			}		
+		}
+		//we now have a list of the cards we could play
+		vector<int> oHandPlayableCards;//indicies of playable cards in the opponent's hand
+		for (int i = 0;i<oHand.size();i++){
+			for (int j = 0;j<neededCards.size();j++){
+				if (oHand[i] == neededCards[j]){//a card that can be played is in the opponent's hand.
+					oHandPlayableCards.push_back(i);
+					break;
+				}
+			}
+		}
+
+		for (int i = 0;i<oHandPlayableCards.size();i++){
+			if (theirHandKB[oHandPlayableCards[i]].knowsColor() && theirHandKB[oHandPlayableCards[i]].knowsNumber()){
+				oHandPlayableCards.erase(oHandPlayableCards.begin()+i);
+			}
+			else if (theirHandKB[oHandPlayableCards[i]].knowsColor()){//then hint the number
+				NumberHintEvent* NHE = new NumberHintEvent();
+				NHE->number = oHand[oHandPlayableCards[i]].number;
+				return NHE;//return the number hint event
+			}
+			else if (theirHandKB[oHandPlayableCards[i]].knowsNumber()){//then hint the color
+				ColorHintEvent* CHE = new ColorHintEvent();
+				CHE->color = oHand[oHandPlayableCards[i]].color;
+				return CHE;
+			}
+		}
+
+		//if no cards were yet hinted at...
+		vector<int> possibleColorHints;
+		vector<int> possibleNumberHints;
+		for (int i = 0;i<oHandPlayableCards.size();i++){
+			int colorTally = 0;
+			int numTally = 0;
+			for (int j = 0;j<oHand.size();j++){
+				if (oHand[j].color == oHand[oHandPlayableCards[i]].color)
+					colorTally++;
+				if (oHand[j].number == oHand[oHandPlayableCards[i]].number)
+					numTally++;
+			}
+			possibleColorHints.push_back(colorTally);
+			possibleNumberHints.push_back(numTally);
+		}
+
+		int minColorIndex = 0;
+		for (int i = 1;i< possibleColorHints.size();i++){
+			if (possibleColorHints[i] < possibleColorHints[minColorIndex])
+				minColorIndex = i;
+		}
+
+		int minNumIndex = 0;
+		for (int i = 1;i<possibleNumberHints.size();i++){
+			if (possibleNumberHints[i] < possibleNumberHints[minNumIndex])
+				minNumIndex = i;
+		}
+
+		//we now have the min values for both vectors
+
+		if (possibleColorHints[minColorIndex] < possibleNumberHints[minNumIndex]){
+			ColorHintEvent* CHE = new ColorHintEvent();
+			CHE->color = oHand[oHandPlayableCards[minColorIndex]].color;
+			return CHE;
+		}
+		else{
+			NumberHintEvent* NHE = new NumberHintEvent();
+			NHE->number = oHand[oHandPlayableCards[minNumIndex]].number;
+			return NHE;
+		}
+
+	}
+
 	/* You must produce an event of the appropriate type. Not all member
 		variables of a given event type need to be filled in; some will be
 		ignored even if they are. Summary follows.

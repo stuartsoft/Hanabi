@@ -20,6 +20,12 @@ public:
 	bool couldBeColor(int c);
 	bool couldBeNumber(int n);
 
+	int mustBeColor();
+	int mustBeNumber();
+
+	bool knowsColor();
+	bool knowsNumber();
+
 	vector<int> possibleColors;
 	vector<int> possibleNumbers;
 };
@@ -45,21 +51,21 @@ void CardKnowledgeBase::setNumber(int n){
 }
 
 void CardKnowledgeBase::removePossibleColor(int c){
-	for (int i = 0;i< possibleColors.size;i++){
+	for (int i = 0;i< possibleColors.size();i++){
 		if (possibleColors[i] == c)
-			possibleColors.erase(possibleColors.begin + i);
+			possibleColors.erase(possibleColors.begin() + i);
 	}
 }
 
 void CardKnowledgeBase::removePossibleNumber(int n){
-		for (int i = 0;i< possibleNumbers.size;i++){
+		for (int i = 0;i< possibleNumbers.size();i++){
 		if (possibleNumbers[i] == n)
-			possibleNumbers.erase(possibleNumbers.begin + i);
+			possibleNumbers.erase(possibleNumbers.begin() + i);
 	}
 }
 
 bool CardKnowledgeBase::couldBeColor(int c){
-	for (int i = 0;i<possibleColors.size;i++){
+	for (int i = 0;i<possibleColors.size();i++){
 		if (possibleColors[i] == c)
 			return true;
 	}
@@ -68,12 +74,32 @@ bool CardKnowledgeBase::couldBeColor(int c){
 }
 
 bool CardKnowledgeBase::couldBeNumber(int n){
-	for (int i = 0;i<possibleNumbers.size;i++){
+	for (int i = 0;i<possibleNumbers.size();i++){
 		if (possibleNumbers[i] == n)
 			return true;
 	}
 
 	return false;
+}
+
+int CardKnowledgeBase::mustBeColor(){
+	if (possibleColors.size() ==1 )
+		return possibleColors[0];
+	return -1;
+}
+
+int CardKnowledgeBase::mustBeNumber(){
+	if (possibleNumbers.size() == 1)
+		return possibleNumbers[0];
+	return -1;
+}
+
+bool CardKnowledgeBase::knowsColor(){
+	return (possibleColors.size() ==1);
+}
+
+bool CardKnowledgeBase::knowsNumber(){
+	return (possibleNumbers.size() ==1);
 }
 
 #endif
