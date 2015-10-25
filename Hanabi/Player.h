@@ -80,7 +80,10 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	}
 	else if (actionType == COLOR_HINT){
 		ColorHintEvent * che = static_cast<ColorHintEvent *>(e);
-		
+		int color = che->color;
+		for (int i = 0;i<myHandKB.size;i++){//update each kb in our hand
+			
+		}
 	}
 
 	/* Possible kinds of event:
