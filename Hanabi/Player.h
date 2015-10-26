@@ -33,7 +33,7 @@ private:
 Player::Player()
 {
 	for (int i = 0;i<HAND_SIZE;i++){//initialize my knowledgebase for a default hand
-		CardKnowledgeBase CKB;
+		CardKnowledgeBase CKB = CardKnowledgeBase();
 		myHandKB.push_back(CKB);
 	}
 }
@@ -54,7 +54,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 	int actionType = e->getAction();
 	
 	if (actionType == DRAW){
-		CardKnowledgeBase CKB;
+		CardKnowledgeBase CKB = CardKnowledgeBase();
 		theirHandKB.push_back(CKB);
 	}
 	else if (actionType == DISCARD){
@@ -64,7 +64,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		if(de->wasItThisPlayer){//we discarded a card
 			myHandKB.erase(myHandKB.begin() + pos);
 			if (deckSize > 0){
-				CardKnowledgeBase CKB;
+				CardKnowledgeBase CKB = CardKnowledgeBase();
 				myHandKB.push_back(CKB);
 			}
 		}
@@ -78,7 +78,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		if (pe->wasItThisPlayer){//we played
 			myHandKB.erase(myHandKB.begin() + pos);
 			if (deckSize > 0){
-				CardKnowledgeBase CKB;
+				CardKnowledgeBase CKB = CardKnowledgeBase();
 				myHandKB.push_back(CKB);
 			}
 		}
@@ -96,7 +96,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		for (int i = 0;i<myHandKB.size();i++){//update each kb in our hand
 			bool cardMatch = false;//card i was hinted
 			for (int j = 0;j<che->indices.size();j++){
-				if (i==j){
+				if (i==che->indices[j]){
 					cardMatch = true;
 					break;
 				}
@@ -116,7 +116,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		for (int i = 0;i<myHandKB.size();i++){
 			bool cardMatch = false;
 			for (int j = 0;j<nhe->indices.size();j++){
-				if (i==j){
+				if (i==nhe->indices[j]){
 					cardMatch = true;
 					break;
 				}
@@ -126,7 +126,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 				myHandKB[i].setNumber(number);
 			}
 			else{
-				myHandKB[i].removePossibleColor(number);
+				myHandKB[i].removePossibleNumber(number);
 			}
 		}
 	}
@@ -153,13 +153,40 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 Event* Player::ask()//actual AI
 {
-	system("pause");
+	/*
+	cout<<"---------New Turn-----------"<<endl;
+	cout<<"My KB is:"<<endl;
+	for (int i = 0;i<myHandKB.size();i++){
+		cout<<"("<<myHandKB[i].possibleColors.size()<< ", "<<myHandKB[i].possibleNumbers.size()<<") ";
+	}
+	cout<<endl;
+	cout <<"Their KB is:"<<endl;
+	for (int i = 0;i<theirHandKB.size();i++){
+		cout<<"("<<theirHandKB[i].possibleColors.size() <<", "<<theirHandKB[i].possibleNumbers.size()<<") ";
+	}
+	cout <<endl;
+	*/
+	//system("pause");
 	vector<Card> neededCards;
 	for (int i = 0;i<board.size();i++){
 		if (board[i]<NUM_NUMBERS){
 			Card neededCard(i,board[i]+1);
 			neededCards.push_back(neededCard);
 		}		
+	}
+
+	//play actions
+	for (int i = 0;i<myHandKB.size();i++){
+		if (myHandKB[i].knowsColor() && myHandKB[i].knowsNumber()){
+			for (int j = 0;j<neededCards.size();j++){
+				if (myHandKB[i].possibleColors[0] == neededCards[j].color && myHandKB[i].possibleNumbers[0] == neededCards[j].number){
+					PlayEvent * PE = new PlayEvent();
+					PE->position = i;
+					//cout<< "!!!Playing card index ("<<i<<") with color ("<<myHandKB[i].possibleColors[0]<<") and num ("<<myHandKB[i].possibleNumbers[0]<<")"<<endl;
+					return PE;//play this card if we know color and num and it is playable
+				}
+			}
+		}
 	}
 
 	if (hints > 0){//we have hints available. Only hint cards that are currently playable
@@ -182,11 +209,31 @@ Event* Player::ask()//actual AI
 			else if (theirHandKB[oHandPlayableCards[i]].knowsColor()){//then hint the number
 				NumberHintEvent* NHE = new NumberHintEvent();
 				NHE->number = oHand[oHandPlayableCards[i]].number;
+
+				for (int j = 0;j<theirHandKB.size();j++){//update our copy of the opponent's kb
+					if (oHand[j].number == NHE->number){
+						theirHandKB[j].setNumber(NHE->number);
+					}
+					else{
+						theirHandKB[j].removePossibleNumber(NHE->number);
+					}
+				}
+
 				return NHE;//return the number hint event
 			}
 			else if (theirHandKB[oHandPlayableCards[i]].knowsNumber()){//then hint the color
 				ColorHintEvent* CHE = new ColorHintEvent();
 				CHE->color = oHand[oHandPlayableCards[i]].color;
+
+				for (int j = 0;j<theirHandKB.size();j++){//update our copy of the opponent's kb
+					if (oHand[j].color == CHE->color){
+						theirHandKB[j].setColor(CHE->color);
+					}
+					else{
+						theirHandKB[j].removePossibleColor(CHE->color);
+					}
+				}
+
 				return CHE;
 			}
 		}
@@ -208,45 +255,54 @@ Event* Player::ask()//actual AI
 		}
 
 		int minColorIndex = 0;
-		for (int i = 1;i< possibleColorHints.size();i++){
+		for (int i = 0;i< possibleColorHints.size();i++){
 			if (possibleColorHints[i] < possibleColorHints[minColorIndex])
 				minColorIndex = i;
 		}
 
 		int minNumIndex = 0;
-		for (int i = 1;i<possibleNumberHints.size();i++){
+		for (int i = 0;i<possibleNumberHints.size();i++){
 			if (possibleNumberHints[i] < possibleNumberHints[minNumIndex])
 				minNumIndex = i;
 		}
 
 		//we now have the min values for both vectors
 
-		if (possibleColorHints[minColorIndex] < possibleNumberHints[minNumIndex]){
-			ColorHintEvent* CHE = new ColorHintEvent();
-			CHE->color = oHand[oHandPlayableCards[minColorIndex]].color;
-			return CHE;
-		}
-		else{
-			NumberHintEvent* NHE = new NumberHintEvent();
-			NHE->number = oHand[oHandPlayableCards[minNumIndex]].number;
-			return NHE;
+		if (possibleColorHints.size() >0 && possibleNumberHints.size() > 0){
+			if (possibleColorHints[minColorIndex] < possibleNumberHints[minNumIndex]){
+				ColorHintEvent* CHE = new ColorHintEvent();
+				CHE->color = oHand[oHandPlayableCards[minColorIndex]].color;
+
+				for (int j = 0;j< theirHandKB.size();j++){//update our copy of the opponent's kb
+					if (oHand[j].color == CHE->color){
+						theirHandKB[j].setColor(CHE->color);
+					}
+					else{
+						theirHandKB[j].removePossibleColor(CHE->color);
+					}
+				}
+
+				return CHE;
+			}
+			else{
+				NumberHintEvent* NHE = new NumberHintEvent();
+				NHE->number = oHand[oHandPlayableCards[minNumIndex]].number;
+
+				for (int j = 0;j< theirHandKB.size();j++){//update our copy of the opponent's kb
+					if (oHand[j].number == NHE->number){
+						theirHandKB[j].setNumber(NHE->number);
+					}
+					else{
+						theirHandKB[j].removePossibleNumber(NHE->number);
+					}
+				}
+
+				return NHE;
+			}
 		}
 	}
 
 	//no hints were given
-
-	//play actions
-	for (int i = 0;i<myHandKB.size();i++){
-		if (myHandKB[i].knowsColor() && myHandKB[i].knowsNumber()){
-			for (int j = 0;j<neededCards.size();j++){
-				if (myHandKB[i].possibleColors[0] == neededCards[j].color && myHandKB[i].possibleNumbers[0] == neededCards[j].number){
-					PlayEvent * PE = new PlayEvent();
-					PE->position = i;
-					return PE;//play this card if we know color and num and it is playable
-				}
-			}
-		}
-	}
 
 	//attempt to discard an unuseful card
 	vector<int> cardKnowledgeScore;

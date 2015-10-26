@@ -9,7 +9,6 @@ class CardKnowledgeBase{
 public:
 	//default constructor
 	CardKnowledgeBase();
-	CardKnowledgeBase(const CardKnowledgeBase& CKB);
 
 	void setColor(int c);
 	void setNumber(int n);
@@ -31,13 +30,12 @@ public:
 };
 
 CardKnowledgeBase::CardKnowledgeBase(){
-		for (int i = 0;i< 5;i++){
-			possibleColors.push_back(i);
-			possibleNumbers.push_back(i+1);
-		}
-}
-
-CardKnowledgeBase::CardKnowledgeBase(const CardKnowledgeBase& CKB){
+	for (int i = 0;i< NUM_COLORS;i++){
+		possibleColors.push_back(i);
+	}
+	for (int i = 0; i< NUM_NUMBERS;i++){
+		possibleNumbers.push_back(i+1);
+	}
 }
 
 void CardKnowledgeBase::setColor(int c){
