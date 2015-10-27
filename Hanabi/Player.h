@@ -73,6 +73,11 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		}
 	}
 	else if (actionType == PLAY){
+
+		for (int i = 0;i<myHandKB.size();i++){//clear all recently hinted flags
+			myHandKB[i].wasRecentlyHinted = false;
+		}
+
 		PlayEvent * pe = static_cast<PlayEvent *>(e);
 		int pos = pe->position;
 		if (pe->wasItThisPlayer){//we played
@@ -91,6 +96,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		}
 	}
 	else if (actionType == COLOR_HINT){
+		for (int i = 0;i<myHandKB.size();i++){//clear all recently hinted flags
+			myHandKB[i].wasRecentlyHinted = false;
+		}
 		ColorHintEvent * che = static_cast<ColorHintEvent *>(e);
 		int color = che->color;
 		for (int i = 0;i<myHandKB.size();i++){//update each kb in our hand
@@ -104,6 +112,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 			if (cardMatch){//we were given a hint for this card
 				myHandKB[i].setColor(color);//remove all possible colors except this color
+				myHandKB[i].wasRecentlyHinted = true;
 			}
 			else{
 				myHandKB[i].removePossibleColor(color);//this card cannot be this color because it was not given a hint
@@ -111,6 +120,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		}
 	}
 	else if (actionType == NUMBER_HINT){
+		for (int i = 0;i<myHandKB.size();i++){//clear all recently hinted flags
+			myHandKB[i].wasRecentlyHinted = false;
+		}
 		NumberHintEvent * nhe = static_cast<NumberHintEvent *>(e);
 		int number = nhe->number;
 		for (int i = 0;i<myHandKB.size();i++){
@@ -124,6 +136,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 			if (cardMatch){
 				myHandKB[i].setNumber(number);
+				myHandKB[i].wasRecentlyHinted = true;
 			}
 			else{
 				myHandKB[i].removePossibleNumber(number);
@@ -153,20 +166,20 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 Event* Player::ask()//actual AI
 {
-	/*
-	cout<<"---------New Turn-----------"<<endl;
-	cout<<"My KB is:"<<endl;
+	int hintTally = 0;
+	int hintIndex = 0;
 	for (int i = 0;i<myHandKB.size();i++){
-		cout<<"("<<myHandKB[i].possibleColors.size()<< ", "<<myHandKB[i].possibleNumbers.size()<<") ";
+		if (myHandKB[i].wasRecentlyHinted){
+			hintTally++;
+			hintIndex = i;
+		}
 	}
-	cout<<endl;
-	cout <<"Their KB is:"<<endl;
-	for (int i = 0;i<theirHandKB.size();i++){
-		cout<<"("<<theirHandKB[i].possibleColors.size() <<", "<<theirHandKB[i].possibleNumbers.size()<<") ";
+	if (hintTally == 1){//a single card was hinted, therefore we know it's safe to play, so play it
+		PlayEvent * PE = new PlayEvent();
+		PE->position = hintIndex;
+		return PE;//play this card if we know color and num and it is playable
 	}
-	cout <<endl;
-	*/
-	//system("pause");
+
 	vector<Card> neededCards;
 	for (int i = 0;i<board.size();i++){
 		if (board[i]<NUM_NUMBERS){

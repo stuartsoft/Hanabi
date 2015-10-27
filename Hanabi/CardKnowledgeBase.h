@@ -27,6 +27,8 @@ public:
 
 	vector<int> possibleColors;
 	vector<int> possibleNumbers;
+
+	bool wasRecentlyHinted;
 };
 
 CardKnowledgeBase::CardKnowledgeBase(){
@@ -36,6 +38,8 @@ CardKnowledgeBase::CardKnowledgeBase(){
 	for (int i = 0; i< NUM_NUMBERS;i++){
 		possibleNumbers.push_back(i+1);
 	}
+
+	wasRecentlyHinted = false;
 }
 
 void CardKnowledgeBase::setColor(int c){
