@@ -1,3 +1,7 @@
+/*	Mike Boom & Stuart Bowman 
+This is the main player ai class. All of the game's ai logic is here. It's main objective is to get respond to Tell() calls and act during Ask() calls.
+*/
+
 #include "GameConstants.h"
 #include "Card.h"
 #include "Events.h"

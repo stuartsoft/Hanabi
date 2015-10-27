@@ -1,3 +1,7 @@
+/*	Mike Boom & Stuart Bowman 
+This is the Card Knowledgebase class. It represents the knowledgebase of an individual card in either the player or the opponent's hand. It also contains a set of helper functions to reduce clutter and make the ai logic a bit easier to read
+*/
+
 #include <vector>
 
 using namespace std;
