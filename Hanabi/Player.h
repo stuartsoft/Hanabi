@@ -310,12 +310,24 @@ Event* Player::ask()//actual AI
 		int score = 0;
 		score = myHandKB[i].possibleColors.size() * myHandKB[i].possibleColors.size();
 		cardKnowledgeScore.push_back(score);
+
+		if (myHandKB[i].knowsColor() && myHandKB[i].knowsNumber()){
+			int color = myHandKB[i].possibleColors[0];
+			int val = myHandKB[i].possibleNumbers[0];
+			if (board[color] > val){
+				//card already exists on the field. Discard
+				DiscardEvent * DE = new DiscardEvent();
+				DE->position = i;
+				return DE;//discard the card we know the least about
+			}
+		}
+
 	}
 
 	int CKS_HighScore = 0;//index of highest score
 	for (int i = 1;i<cardKnowledgeScore.size();i++){
 		if (cardKnowledgeScore[i] > cardKnowledgeScore[CKS_HighScore])
-			CKS_HighScore = i;
+			CKS_HighScore = i;		
 	}
 
 	//CKS_HighScore is the index of the card in our hand with the worst knowledge score, discard it
