@@ -58,6 +58,11 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		theirHandKB.push_back(CKB);
 	}
 	else if (actionType == DISCARD){
+		if (fuses == 1){
+			for (int i = 0;i<myHandKB.size();i++){//clear all recently hinted flags
+				myHandKB[i].wasRecentlyHinted = false;
+			}
+		}
 		DiscardEvent * de = static_cast<DiscardEvent*>(e);
 		discardPile.push_back(de->c);//records card in our discard pile
 		int pos = de->position;
