@@ -3,3 +3,5 @@
 *.v11.suo
 /[Dd]ebug/
 /[Hh]anabi/[Dd]ebug/
+/[Rr]elease/
+/[Hh]anabi/[Rr]elease/
